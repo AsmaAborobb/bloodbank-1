@@ -10,13 +10,19 @@
 
 
 {% block content %}
-<form methods= ['GET','POST']>
-  <div class="col-md-6">
-    <label for="search" class="form-label">search</label>
-    <input type="text" class="form-control" name="search" id = "search" >
-  </div>
+<br>
+<br>
+<br>
+<form method="post">
+  <label for="blood_id">Blood Bag ID</label>
+  <input name="blood_id" id="blood_id" required>
+  <input class="danger" type="submit" value="search" onclick="return confirm('Are you sure?');">
+</form>
   <br>
   <button type="submit" class="btn btn-info">search</button>
+  <br>
+  <br>
+</form>
   <br>
   <br>
   <table class="table">

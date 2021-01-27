@@ -5,6 +5,9 @@ from werkzeug.exceptions import abort
 
 from bloodbank.auth import login_required
 from bloodbank.db import get_db
+from flask_wtf import Form
+from wtforms import TextField, TextAreaField, SubmitField, validators, ValidationError
+from flask_mail import Message, Mail
 
 bp = Blueprint('bank', __name__)
 
@@ -87,6 +90,8 @@ def remove():
     return render_template('bank/remove.html')
 
 
+
+
 @bp.route("/settings")
 @login_required
 def settings():
@@ -96,4 +101,26 @@ def settings():
         'SELECT b.id, name FROM bloodbank b, user u WHERE u.id = ? AND u.bloodbank_id = b.id', (user_id,)
     ).fetchall()
     
+
     return render_template('bank/settings.html', bloodbank = bloodbank)
+
+
+@bp.route('/search')
+@login_required
+def search(methods= ['POST', 'GET']):
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        blood_id = request.form['search']
+        db = get_db()
+        error = None
+
+        if db.execute(
+            'SELECT bs.id'
+            ' FROM bloodstock bs JOIN (SELECT * FROM user WHERE id = ?) u ON bs.bloodbank_id = u.bloodbank_id'
+            ' WHERE bs.id = ?', (user_id, blood_id, )
+        ).fetchall() is None:
+            error = 'The blood bag with the ID {} is not in your bloodbank.'.format(blood_id)
+        
+        if error is not None:
+            flash(error)
+    return render_template('bank/result.html')
